@@ -103,3 +103,39 @@ El pipeline asegura que la nueva versión se valide antes de recibir tráfico.
 El Service permite cambiar de versión sin interrumpir el servicio.
 
 Se garantiza continuidad y se minimizan riesgos al introducir actualizaciones.
+
+
+# Fase 3 – Preparación para el Caos y Remediación
+Objetivo
+En esta fase se implementó un mecanismo de rollback automático en el pipeline de despliegue. El propósito fue demostrar que el sistema puede detectar fallos inesperados durante la validación y revertir los cambios para mantener la versión estable disponible.
+
+Archivo modificado
+.github/workflows/eks-rollback-deploy.yml
+Propósito: Controlar el despliegue Blue-Green y manejar fallos con rollback automático.
+
+Contenido:
+
+Etapa Build: Construcción y publicación de la nueva imagen (Green).
+
+Etapa Deploy: Despliegue de la versión Green y validación de salud simulada.
+
+Etapa Rollback: Se ejecuta si la validación falla, aplicando nuevamente la versión Blue y redirigiendo el tráfico hacia ella.
+
+Aporte: Garantiza resiliencia frente a errores desconocidos, asegurando continuidad del servicio.
+
+Archivos no modificados
+Deployment Blue → versión estable.
+
+Deployment Green → versión candidata.
+
+Service Blue-Green → controla el tráfico entre versiones.
+(Se mantienen iguales a la Fase 2, ya que su función no cambia.)
+
+Resultados de la Fase 3
+El pipeline detecta fallos en la validación de salud.
+
+Si ocurre un error (latencia, error 500 o error desconocido), se activa automáticamente el rollback.
+
+El sistema aplica nuevamente la versión Blue y redirige el tráfico hacia ella.
+
+Se asegura que los usuarios siempre tengan acceso a una versión estable, incluso frente al caos.
