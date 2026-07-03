@@ -5,22 +5,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: echo "docker build -t myapp:green ."
-
-      - name: Push to ECR
-        run: echo "docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:green"
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Deploy Green version
         run: echo "kubectl apply -f k8s/deployment-green.yaml"
 
@@ -28,12 +18,13 @@ jobs:
         run: |
           echo "Simulando validación de salud..."
           echo "kubectl rollout status deployment/myapp-deployment-green"
-          # Aquí se simula un chequeo de latencia o error HTTP
-          echo "Error desconocido detectado" && exit 1
+          # Aquí se simula un fallo inesperado
+          echo "Error desconocido detectado"
+          exit 1
 
       - name: Switch traffic to Green
         if: success()
-        run: echo "kubectl apply -f k8s/service-bluegreen.yaml"
+        run: echo "kubectl apply -f k8s/service-bluegreen.yaml --selector=version=green"
 
       - name: Rollback to Blue
         if: failure()
