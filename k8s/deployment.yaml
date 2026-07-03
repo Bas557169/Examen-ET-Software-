@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
+        env:
+        - name: ENVIRONMENT
+          value: "simulated"
+        - name: CLUSTER_NAME
+          value: "eks-simulation"
+        ports:
+        - containerPort: 80
