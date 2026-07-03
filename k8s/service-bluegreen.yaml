@@ -6,7 +6,7 @@ spec:
   type: LoadBalancer
   selector:
     app: myapp
-    version: green   # Cambia de blue a green cuando la validación sea exitosa
+    version: blue   # Se mantiene en Blue si la validación falla
   ports:
     - protocol: TCP
       port: 80

@@ -1,4 +1,4 @@
-name: Blue-Green EKS Deployment
+name: Blue-Green EKS Deployment with Rollback
 
 on:
   push:
@@ -25,7 +25,19 @@ jobs:
         run: echo "kubectl apply -f k8s/deployment-green.yaml"
 
       - name: Health Validation
-        run: echo "kubectl rollout status deployment/myapp-deployment-green"
+        run: |
+          echo "Simulando validación de salud..."
+          echo "kubectl rollout status deployment/myapp-deployment-green"
+          # Aquí se simula un chequeo de latencia o error HTTP
+          echo "Error desconocido detectado" && exit 1
 
       - name: Switch traffic to Green
+        if: success()
         run: echo "kubectl apply -f k8s/service-bluegreen.yaml"
+
+      - name: Rollback to Blue
+        if: failure()
+        run: |
+          echo "Rollback activado: regresando a versión Blue"
+          echo "kubectl apply -f k8s/deployment-blue.yaml"
+          echo "kubectl apply -f k8s/service-bluegreen.yaml --selector=version=blue"
